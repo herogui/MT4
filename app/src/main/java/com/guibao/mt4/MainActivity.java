@@ -13,9 +13,14 @@ package com.guibao.mt4;
         import java.io.PrintWriter;
         import java.net.Socket;
         import java.net.UnknownHostException;
+        import java.util.Calendar;
+        import java.util.Date;
+        import java.util.TimeZone;
 
         import android.app.Activity;
+        import android.app.AlarmManager;
         import android.app.AlertDialog;
+        import android.app.PendingIntent;
         import android.content.ComponentName;
         import android.content.Context;
         import android.content.DialogInterface;
@@ -25,9 +30,13 @@ package com.guibao.mt4;
         import android.os.Bundle;
         import android.os.Handler;
         import android.os.Message;
+        import android.os.PowerManager;
+        import android.os.SystemClock;
+        import android.support.v4.app.NotificationCompat;
         import android.view.Menu;
         import android.view.View;
         import android.view.View.OnClickListener;
+        import android.view.WindowManager;
         import android.widget.Button;
         import android.widget.EditText;
         import android.widget.TextView;
@@ -40,18 +49,32 @@ public class MainActivity extends Activity {
     private Button butBuy;
     private Button btnSell;
 
-    private static final String HOST = "47.92.74.112";
-    //private static final String HOST = "192.168.1.103";
-    private static final int PORT = 8888;
+    private   String HOST;
+
+    private   int PORT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        this.getWindow() .addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
         setContentView(R.layout.activity_main);
+
 
         if(!isConn(getApplicationContext())){
             setNetworkMethod(MainActivity.this);
         }
+
+        HOST = MyApp.getInstance().getMainUrl();
+
+        PORT = MyApp.getInstance().getPort();
+
+        //alarm();
+        startService(new Intent(this, MyService.class));
 
         butBuy = (Button) findViewById(R.id.btnBuy);
         btnSell = (Button) findViewById(R.id.btnSell);
@@ -84,8 +107,6 @@ public class MainActivity extends Activity {
                                         connectSocket("buy");
                                     }
                                 }.start();
-
-
                             }
 
                         }).setNegativeButton("取消", new DialogInterface.OnClickListener() {//添加返回按钮
@@ -94,13 +115,9 @@ public class MainActivity extends Activity {
                     @Override
 
                     public void onClick(DialogInterface dialog, int which) {//响应事件
-
-
                     }
 
                 }).show();//在按键响应事件中显示此对话框
-
-
             }
         });
 
@@ -124,8 +141,6 @@ public class MainActivity extends Activity {
                                         connectSocket("sell");
                                     }
                                 }.start();
-
-
                             }
 
                         }).setNegativeButton("取消", new DialogInterface.OnClickListener() {//添加返回按钮
@@ -134,15 +149,24 @@ public class MainActivity extends Activity {
                     @Override
 
                     public void onClick(DialogInterface dialog, int which) {//响应事件
-
-
                     }
 
                 }).show();//在按键响应事件中显示此对话框
             }
         });
+    }
+
+    void  alarm()
+    {
+       Intent intent = new Intent(MainActivity.this, AlarmReceiver.class);
+      PendingIntent sender = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
 
 
+        AlarmManager manager = (AlarmManager)getSystemService(ALARM_SERVICE);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis(), 2*1000, sender);
+
+        //Toast.makeText(MainActivity.this,"设置重复闹铃成功! ", Toast.LENGTH_LONG).show();
     }
 
     public void connectSocket(String s) {
@@ -278,5 +302,15 @@ public class MainActivity extends Activity {
         }).show();
     }
 
-
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        PowerManager pm = (PowerManager) this.getSystemService(this.POWER_SERVICE);
+        if (!pm.isScreenOn()) {
+            PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                    PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "bright");
+            wl.acquire();
+            wl.release();
+        }
+    }
 }
