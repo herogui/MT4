@@ -1,9 +1,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:layout_width="200dp"
+    android:layout_height="160dp"
+    android:background="#fffdfd"
     >
-
-    <Button android:id="@+id/btnStop" android:text="关闭程序" android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+    <Button android:id="@+id/btnView"  android:text="好行情" android:layout_width="fill_parent"
+        android:layout_height="wrap_content" android:layout_marginTop="20dp"/>
+    <Button android:id="@+id/btnStop"  android:text="关闭" android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"/>
+    </LinearLayout>
 </RelativeLayout>

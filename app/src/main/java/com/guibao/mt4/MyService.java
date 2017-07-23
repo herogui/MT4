@@ -80,8 +80,8 @@ public class MyService extends Service {
                         {
                             if (!bRing) {
 
-                                KeyguardManager km = (KeyguardManager) MyService.this.getSystemService(Context.KEYGUARD_SERVICE);
-                                if (km.inKeyguardRestrictedInputMode())
+                                //KeyguardManager km = (KeyguardManager) MyService.this.getSystemService(Context.KEYGUARD_SERVICE);
+                               // if (km.inKeyguardRestrictedInputMode())
                                 {
                                     Intent it = new Intent(MyService.this, Main2Activity.class);
                                     it.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
